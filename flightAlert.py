@@ -1,7 +1,12 @@
 import json
+import os
 import time
 
 import requests
+
+# 获取当前脚本所在目录
+current_dir = os.path.dirname(os.path.realpath(__file__))
+config_path = os.path.join(current_dir, 'config.json')
 
 
 def push_message(message, token):
@@ -11,7 +16,7 @@ def push_message(message, token):
 
 if __name__ == "__main__":
     # 读取json配置文件
-    with open("config.json") as f:
+    with open(config_path, 'r') as f:
         config = json.load(f)
 
     # 基础URL
