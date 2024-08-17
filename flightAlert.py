@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
     # 初始目标价格字典，用于存储每个日期的目标价格
     targetPrices = {date: 0 for date in config["dateToGo"]}
+    noTargetPrices = {date: 0 for date in config["dateToGo"]}
 
     while True:
         # 获取直飞和非直飞的机票信息
@@ -63,7 +64,10 @@ if __name__ == "__main__":
                     push_message(
                         f'第一次推送，{date}的直飞价格{direct_price}，非直飞价格{non_direct_price} - 当前时间:{time.strftime("%H-%M-%S", time.localtime())}',
                         config["SCKEY"])
-                    targetPrices[date] = direct_price  # 可以根据需求存储非直飞价格
+                    targetPrices[date] = direct_price
+                    if noTargetPrices[date] == 0:
+                        noTargetPrices[date] = non_direct_price
+
                 else:
                     # 检查价格变化，判断是否超过阈值
                     if abs(direct_price - targetPrices[date]) >= config["priceStep"]:
@@ -72,11 +76,11 @@ if __name__ == "__main__":
                             config["SCKEY"])
                         targetPrices[date] = direct_price  # 更新直飞价格
 
-                    if abs(non_direct_price - targetPrices[date]) >= config["priceStep"]:
+                    if abs(non_direct_price - noTargetPrices[date]) >= config["priceStep"]:
                         push_message(
-                            f'{date}的非直飞价格变化超过设定值，当前价格{non_direct_price}, 变化:{non_direct_price - targetPrices[date]}, 当前时间:{time.strftime("%H:%M:%S", time.localtime())}',
+                            f'{date}的非直飞价格变化超过设定值，当前价格{non_direct_price}, 变化:{non_direct_price - noTargetPrices[date]}, 当前时间:{time.strftime("%H:%M:%S", time.localtime())}',
                             config["SCKEY"])
-                        targetPrices[date] = non_direct_price  # 更新非直飞价格
+                        noTargetPrices[date] = non_direct_price  # 更新非直飞价格
 
         print(f'当前轮次查询完毕，等待{config["sleepTime"]}s后继续查询价格')
         time.sleep(config["sleepTime"])
